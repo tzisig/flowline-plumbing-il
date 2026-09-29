@@ -1,0 +1,41 @@
+---
+import { Picture } from 'astro:assets';
+import Breadcrumbs from './Breadcrumbs.astro';
+import type { Crumb } from '../lib/schema';
+interface Props {
+  crumbs: Crumb[];
+  title: string;
+  lead?: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Color of the flow line on this page (a service's line color). */
+  color?: string;
+}
+const { crumbs, title, lead, image, imageAlt = '', color } = Astro.props;
+---
+<section class:list={['page-head', 'flow', { 'has-image': image }]} style={color ? `--c-coral:${color}` : undefined}>
+  <div class="wrap grid">
+    <div class="text">
+      <Breadcrumbs crumbs={crumbs} />
+      <h1 class="station">{title}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      <slot />
+    </div>
+    {image && (
+      <Picture class="photo" src={image} alt={imageAlt} widths={[480, 720, 960]} sizes="(min-width: 900px) 40vw, 100vw" formats={['avif', 'webp']} loading="eager" fetchpriority="high" />
+    )}
+  </div>
+</section>
+
+<style>
+  .page-head { padding-block: var(--space-6) var(--space-8); background: var(--c-panel); border-bottom: 1px solid var(--c-line); }
+  .grid { display: grid; gap: var(--space-6); align-items: center; }
+  .text { display: grid; gap: var(--space-4); justify-items: start; }
+  h1 { margin-top: var(--space-4); }
+  .page-head .station::before { background: var(--c-panel); }
+  .grid :global(.photo) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius); }
+  @media (min-width: 900px) {
+    .has-image .grid { grid-template-columns: 1.2fr 1fr; gap: var(--space-8); }
+    .grid :global(.photo) { aspect-ratio: 4 / 3; }
+  }
+</style>

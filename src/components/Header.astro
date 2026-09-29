@@ -1,0 +1,79 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import DispatchStatus from './DispatchStatus.astro';
+import { contact } from '../config/site.config';
+import { nav } from '../config/navigation';
+import { waLink, telLink } from '../lib/util';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+<aside class="strip on-dark" aria-label="מצב המוקד">
+  <div class="wrap"><DispatchStatus /></div>
+</aside>
+<header class="header" data-header>
+  <div class="wrap bar">
+    <Logo />
+    <nav class="nav" aria-label="ניווט ראשי">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div class="tools">
+      <a class="emergency" href="/emergency/" aria-current={isCurrent('/emergency/') ? 'page' : undefined}><Icon name="alert" size={18} />חירום</a>
+      <a class="phone" href={telLink}><span class="small">מוקד 24/7</span><span dir="ltr" class="tnum">{contact.phone}</span></a>
+      <a class="btn btn--wa wa" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={19} />וואטסאפ</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu-toggle>
+        <Icon name="menu" size={26} />
+        <span class="visually-hidden">תפריט</span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="ניווט ראשי" hidden data-mobile-nav>
+    <ul class="wrap">
+      <li><a href="/" aria-current={path === '/' ? 'page' : undefined}>דף הבית</a></li>
+      <li><a href="/emergency/" class="m-emergency">חירום: מה עושים עכשיו</a></li>
+      {nav.map((n) => (
+        <li><a href={n.href} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a></li>
+      ))}
+      <li><a href="/reviews/">המלצות</a></li>
+      <li><a href="/faq/">שאלות נפוצות</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .strip { background: var(--c-ink); padding-block: 0.45rem; }
+  .header { position: sticky; top: 0; z-index: 50; background: var(--c-panel); border-bottom: 1px solid var(--c-line); }
+  .bar { display: flex; align-items: center; gap: var(--space-5); min-height: 72px; }
+  .nav { margin-inline: auto; display: none; }
+  .nav ul { display: flex; gap: 1.25rem; list-style: none; padding: 0; }
+  .nav a { white-space: nowrap; font-size: 0.95rem; font-weight: 600; color: var(--c-text); text-decoration: none; padding-block: 0.4rem; border-bottom: 3px solid transparent; }
+  .nav a:hover, .nav a[aria-current='page'] { border-bottom-color: var(--c-coral); }
+  .tools { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
+  .emergency {
+    display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; padding: 0.35rem 0.8rem;
+    font-weight: 750; color: var(--c-coral); border: 2px solid var(--c-coral); border-radius: var(--radius); text-decoration: none;
+  }
+  .emergency:hover, .emergency[aria-current='page'] { background: var(--c-coral); color: #fff; }
+  .phone { display: none; white-space: nowrap; text-decoration: none; color: var(--c-ink); line-height: 1.1; }
+  .phone .small { display: block; font-size: 0.75rem; font-weight: 600; color: var(--c-muted); }
+  .phone [dir] { font-size: 1.25rem; font-weight: 800; }
+  .wa { display: none; min-height: 44px; padding-inline: 1rem; }
+  .menu-toggle { display: grid; place-items: center; width: 48px; height: 48px; border: 0; background: none; color: var(--c-ink); cursor: pointer; }
+  .mobile-nav { border-top: 1px solid var(--c-line); max-height: calc(100dvh - 110px); overflow-y: auto; }
+  .mobile-nav ul { list-style: none; padding-block: var(--space-4) var(--space-6); display: grid; }
+  .mobile-nav a { display: block; font-size: 1.5rem; font-weight: 800; font-stretch: 75%; color: var(--c-ink); text-decoration: none; padding-block: 0.5rem; }
+  .mobile-nav a[aria-current='page'] { color: var(--c-coral); }
+  .mobile-nav .m-emergency { color: var(--c-coral); }
+  @media (min-width: 640px) { .wa { display: inline-flex; } }
+  @media (min-width: 1240px) {
+    .nav { display: block; }
+    .menu-toggle, .mobile-nav { display: none; }
+    .tools { margin-inline-start: 0; }
+  }
+  @media (min-width: 900px) { .phone { display: block; } }
+</style>

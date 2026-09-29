@@ -1,0 +1,25 @@
+---
+import type { PriceRow } from '../config/site.config';
+import { priceRange } from '../lib/util';
+interface Props { rows: PriceRow[]; caption: string }
+const { rows, caption } = Astro.props;
+---
+<table class="table prices">
+  <caption class="visually-hidden">{caption}</caption>
+  <thead><tr><th scope="col">עבודה</th><th scope="col">מחיר (כולל מע"מ)</th><th scope="col">זמן עבודה</th></tr></thead>
+  <tbody>
+    {rows.map((r) => (
+      <tr><th scope="row">{r.job}</th><td class="tnum p">{priceRange(r.from, r.to)}</td><td class="muted">{r.time}</td></tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .p { font-weight: 700; white-space: nowrap; }
+  @media (max-width: 599px) {
+    .prices thead { display: none; }
+    .prices tr { display: grid; grid-template-columns: 1fr auto; gap: 0 var(--space-3); padding-block: 0.7rem; border-bottom: 1px solid var(--c-line); }
+    .prices th, .prices td { border: 0; padding: 0; }
+    .prices td.muted { grid-column: 1 / -1; font-size: 0.9rem; }
+  }
+</style>

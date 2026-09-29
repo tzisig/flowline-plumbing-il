@@ -1,0 +1,62 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { manager, company, site, images } from '../config/site.config';
+import { breadcrumbSchema, businessRef, home } from '../lib/schema';
+
+const crumbs = [home, { label: 'אודות', href: '/about/' }];
+const years = new Date().getFullYear() - site.foundedYear;
+const person = { '@context': 'https://schema.org', '@type': 'Person', name: manager.name, jobTitle: manager.role, worksFor: businessRef };
+---
+<BaseLayout
+  title={`אודות ${site.shortName}: מוקד אינסטלציה בשפלה מאז ${site.foundedYear}`}
+  description={`${company.technicians} טכנאים, ${company.vans} רכבים ומוקד שעונה בכל שעה. איך ${site.shortName} עובדת, ולמה המחיר נאמר לפני שמתחילים.`}
+  schema={[breadcrumbSchema(crumbs), person]}
+>
+  <PageHead crumbs={crumbs} title={`${site.shortName}: מוקד, לא אינסטלטור אחד`} lead={`${years} שנים בשפלה, ${company.technicians} טכנאים, ${company.vans} רכבים. ${company.jobsPerYear.toLocaleString('he-IL')} קריאות בשנה.`} image={images.van} imageAlt={images.vanAlt} />
+
+  <section class="section flow">
+    <div class="wrap story">
+      <div>
+        <h2 class="station">{manager.name}, {manager.role}</h2>
+        <div class="prose">{manager.story.map((p) => <p>{p}</p>)}</div>
+      </div>
+      <Picture src={manager.image} alt={manager.imageAlt} widths={[400, 640]} sizes="(min-width: 900px) 24rem, 100vw" formats={['avif', 'webp']} loading="lazy" class="portrait" />
+    </div>
+  </section>
+
+  <section class="section section--fog flow flow--end">
+    <div class="wrap">
+      <h2 class="station h">מה אנחנו מבטיחים</h2>
+      <ul class="promises">{company.promises.map((p) => <li><h3>{p.title}</h3><p>{p.text}</p></li>)}</ul>
+      <h2 class="h h2">הצוות והציוד</h2>
+      <ul class="creds">{company.credentials.map((c) => <li><Icon name="shield" size={20} />{c}</li>)}</ul>
+    </div>
+  </section>
+
+  {site.isDemo && <section class="section demo"><div class="wrap"><p>אתר הדגמה: החברה, עידו שחר והסיפור בדויים, והתמונות הן תמונות סטוק.</p></div></section>}
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .story { display: grid; gap: var(--space-7); align-items: start; }
+  @media (min-width: 900px) { .story { grid-template-columns: 1.5fr 1fr; gap: var(--space-8); } }
+  .story h2 { font-size: var(--step-3); margin-bottom: var(--space-5); }
+  .prose p { font-size: 1.1rem; }
+  .story :global(.portrait) { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius); }
+  .h { font-size: var(--step-3); margin-bottom: var(--space-6); }
+  .h2 { margin-top: var(--space-8); }
+  .promises { list-style: none; padding: 0; display: grid; gap: var(--space-5); }
+  @media (min-width: 800px) { .promises { grid-template-columns: repeat(4, 1fr); } }
+  .promises li { background: var(--c-panel); border-radius: var(--radius); padding: var(--space-5); border-top: 5px solid var(--c-coral); }
+  .promises h3 { margin-bottom: var(--space-2); }
+  .creds { list-style: none; padding: 0; display: grid; gap: var(--space-3); font-size: 1.1rem; }
+  .creds li { display: flex; gap: var(--space-3); align-items: center; }
+  .creds :global(svg) { color: var(--c-teal); flex: none; }
+  .demo { padding-block: var(--space-6); }
+  .demo p { font-size: 0.9rem; color: var(--c-muted); }
+</style>

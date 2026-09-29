@@ -1,0 +1,13 @@
+---
+import Icon from './Icon.astro';
+interface Props { rating: number }
+const { rating } = Astro.props;
+---
+<span class="stars" role="img" aria-label={`דירוג ${rating} מתוך 5`}>
+  {[1, 2, 3, 4, 5].map((i) => <Icon name="star" size={15} class={i <= Math.round(rating) ? 'on' : 'off'} />)}
+</span>
+
+<style>
+  .stars { display: inline-flex; gap: 2px; color: #9a6b00; }
+  .stars :global(.off) { color: var(--c-line); }
+</style>

@@ -1,0 +1,68 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site, contact, areas, services, company } from '../config/site.config';
+import { waLink, telLink } from '../lib/util';
+const year = new Date().getFullYear();
+---
+<footer class="footer on-dark">
+  <div class="wrap grid">
+    <div class="brand">
+      <Logo tone="light" />
+      <p>{site.tagline}. {company.technicians} טכנאים, {company.vans} רכבים, זמן הגעה ממוצע {company.avgArrival} דקות.</p>
+      <a class="big-phone" href={telLink}><span>מוקד 24/7</span><span dir="ltr" class="tnum">{contact.phone}</span></a>
+      <div class="actions">
+        <a class="btn btn--wa" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={19} />וואטסאפ</a>
+        <a class="btn btn--ghost" href="/emergency/"><Icon name="alert" size={18} />חירום: מה עושים</a>
+      </div>
+    </div>
+    <div>
+      <h2 class="col-title">שירותים</h2>
+      <ul class="links">{services.map((s) => <li><a href={`/services/${s.slug}/`}><span class="swatch" style={`background:${s.color}`} aria-hidden="true"></span>{s.title}</a></li>)}</ul>
+    </div>
+    <div>
+      <h2 class="col-title">אזורים</h2>
+      <ul class="links">{areas.map((a) => <li><a href={`/areas/${a.slug}/`}>אינסטלטור ב{a.name}</a></li>)}</ul>
+    </div>
+    <div>
+      <h2 class="col-title">עוד באתר</h2>
+      <ul class="links">
+        <li><a href="/prices/">מחירון</a></li>
+        <li><a href="/leak-test/">בדיקת מד מים</a></li>
+        <li><a href="/jobs/">עבודות אחרונות</a></li>
+        <li><a href="/reviews/">המלצות</a></li>
+        <li><a href="/faq/">שאלות נפוצות</a></li>
+        <li><a href="/warranty/">אחריות ותנאי שירות</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap bottom">
+    <p><Icon name="pin" size={15} /> {contact.street}. {contact.officeHours}. <a href={`mailto:${contact.email}`}>{contact.email}</a></p>
+    <ul class="legal">
+      <li><a href="/privacy/">מדיניות פרטיות</a></li>
+      <li><a href="/accessibility/">הצהרת נגישות</a></li>
+      <li><button type="button" class="linklike" data-cookie-settings>הגדרות עוגיות</button></li>
+    </ul>
+    <p class="copy">© {year} {site.name}.{site.isDemo && <> {site.demoNote}</>}</p>
+  </div>
+</footer>
+
+<style>
+  .footer { background: var(--c-ink); color: #b9c6cd; padding-block: var(--space-8) var(--space-6); font-size: 0.975rem; }
+  .grid { display: grid; gap: var(--space-7); }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1.3fr 1fr; } }
+  @media (min-width: 1100px) { .grid { grid-template-columns: 1.4fr 1fr 0.9fr 0.8fr; } }
+  .brand p { margin-block: var(--space-4); max-width: 26rem; }
+  .big-phone { display: grid; text-decoration: none; color: #fff; margin-bottom: var(--space-4); line-height: 1.1; }
+  .big-phone span:first-child { font-size: 0.85rem; font-weight: 600; color: #b9c6cd; }
+  .big-phone [dir] { font-size: 2.2rem; font-weight: 800; font-stretch: 75%; text-align: end; justify-self: start; }
+  .col-title { font-size: 1.05rem; font-stretch: 87.5%; color: #fff; margin-bottom: var(--space-4); }
+  .links { list-style: none; padding: 0; display: grid; gap: 0.45rem; }
+  .footer a:not(.btn) { color: #fff; }
+  .swatch { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-inline-end: 0.5rem; vertical-align: middle; }
+  .bottom { margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid rgb(255 255 255 / 0.14); display: grid; gap: var(--space-3); font-size: 0.875rem; }
+  .bottom p { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+  .legal { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; list-style: none; padding: 0; }
+  .linklike { font: inherit; color: #fff; background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+  .copy { color: #93a3ad; }
+</style>

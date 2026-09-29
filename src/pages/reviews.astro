@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import ReviewList from '../components/ReviewList.astro';
+import Stars from '../components/Stars.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { stats, reviews, site } from '../config/site.config';
+import { breadcrumbSchema, businessRef, home } from '../lib/schema';
+
+const crumbs = [home, { label: 'המלצות', href: '/reviews/' }];
+const reviewSchema = reviews.map((r) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Review',
+  itemReviewed: businessRef,
+  author: { '@type': 'Person', name: r.name },
+  reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
+  reviewBody: r.text,
+}));
+---
+<BaseLayout
+  title="המלצות לקוחות"
+  description={`${stats.rating} מתוך 5 לפי ${stats.reviewCount} ביקורות. מה לקוחות בשפלה כותבים על המוקד, זמני ההגעה והמחירים של ${site.shortName}.`}
+  schema={[breadcrumbSchema(crumbs), ...reviewSchema]}
+>
+  <PageHead crumbs={crumbs} title="מה לקוחות כותבים" lead="המלצות מלקוחות בכל שש הערים, בכל סוגי העבודה. גם כאלה עם ארבעה כוכבים.">
+    <p class="rating"><Stars rating={stats.rating} /> <strong>{stats.rating}</strong> מתוך 5, לפי {stats.reviewCount} ביקורות</p>
+  </PageHead>
+  <section class="section section--fog">
+    <div class="wrap">
+      <ReviewList />
+      {site.isDemo && <p class="note">אתר הדגמה: ההמלצות והדירוג בדויים.</p>}
+    </div>
+  </section>
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .rating { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .note { margin-top: var(--space-6); font-size: 0.9rem; color: var(--c-muted); }
+</style>

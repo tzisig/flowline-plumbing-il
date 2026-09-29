@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro';
+import { waLink, telLink } from '../lib/util';
+---
+<nav class="mobile-bar" aria-label="פנייה מהירה למוקד">
+  <a class="call" href={telLink}><Icon name="phone" size={21} />התקשרו למוקד</a>
+  <a class="wa" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={22} />וואטסאפ</a>
+</nav>
+
+<style>
+  .mobile-bar {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 60; display: grid; grid-template-columns: 1.5fr 1fr;
+    height: calc(var(--mobile-bar) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+    background: var(--c-ink); box-shadow: 0 -6px 20px rgb(0 0 0 / 0.2);
+  }
+  .mobile-bar a { display: flex; align-items: center; justify-content: center; gap: 0.45rem; font-weight: 750; font-size: 1.02rem; color: #fff; text-decoration: none; }
+  .mobile-bar .call { background: var(--c-coral); }
+  .mobile-bar .wa { background: var(--c-whatsapp); }
+  @media (min-width: 860px) { .mobile-bar { display: none; } }
+</style>

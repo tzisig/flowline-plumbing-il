@@ -1,0 +1,77 @@
+---
+// Schematic "metro map" of the service area: routes from the dispatch depot to each city, with live
+// arrival estimates. Positions and routes come from the config. Not to scale.
+import { areas, depot } from '../config/site.config';
+import { etaData } from '../lib/util';
+interface Props { current?: string; animate?: boolean }
+const { current, animate = true } = Astro.props;
+const stations = areas.filter((a) => a.route);
+const home = areas.find((a) => !a.route)!; // the city where the depot is
+---
+<figure class:list={['dispatch-map', { animate }]} data-dispatch-map data-eta={JSON.stringify(etaData())}>
+  <svg viewBox="0 0 400 460" role="group" aria-label="מפת אזורי השירות וזמני ההגעה מהמוקד">
+    <rect class="sea" x="0" y="0" width="34" height="460" />
+    <text class="sea-label" x="17" y="230" transform="rotate(-90 17 230)" text-anchor="middle" aria-hidden="true">הים התיכון</text>
+
+    {stations.map((a, i) => (
+      <polyline class="route" points={a.route} pathLength="1" style={`--i:${i}`} />
+    ))}
+
+    <a href={`/areas/${home.slug}/`} class:list={['stop', 'depot', { current: current === home.slug }]}>
+      <title>{home.name}: המוקד</title>
+      <circle cx={depot.x} cy={depot.y} r="15" />
+      <circle class="inner" cx={depot.x} cy={depot.y} r="6" />
+      <text x={depot.x - 24} y={depot.y - 2} direction="rtl" text-anchor="start" class="name">{home.name}</text>
+      <text x={depot.x - 24} y={depot.y + 16} direction="rtl" text-anchor="start" class="eta" data-eta-for={home.slug}>כ-{home.minutes} דקות</text>
+    </a>
+
+    {stations.map((a) => {
+      const right = a.x >= depot.x;
+      const tx = right ? a.x + 18 : a.x - 18;
+      return (
+        <a href={`/areas/${a.slug}/`} class:list={['stop', { current: current === a.slug }]}>
+          <title>{a.name}</title>
+          <circle cx={a.x} cy={a.y} r="10" />
+          <text x={tx} y={a.y - 2} direction="rtl" text-anchor={right ? 'end' : 'start'} class="name">{a.name}</text>
+          <text x={tx} y={a.y + 16} direction="rtl" text-anchor={right ? 'end' : 'start'} class="eta" data-eta-for={a.slug}>כ-{a.minutes} דקות</text>
+        </a>
+      );
+    })}
+  </svg>
+  <figcaption>זמני הגעה משוערים מהמוקד, לפי השעה עכשיו. מפה סכמטית, לא בקנה מידה.</figcaption>
+</figure>
+
+<style>
+  .dispatch-map { margin: 0; }
+  svg { width: 100%; height: auto; overflow: visible; direction: ltr; }
+  .sea { fill: var(--map-sea, rgb(255 255 255 / 0.06)); }
+  .sea-label { fill: var(--map-muted, #93a3ad); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+  .route { fill: none; stroke: var(--c-coral); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .stop circle { fill: var(--map-stop, #fff); stroke: var(--map-ink, #fff); stroke-width: 4; }
+  .depot circle { fill: var(--map-bg, var(--c-ink)); stroke: var(--map-ink, #fff); stroke-width: 5; }
+  .depot .inner { fill: var(--c-coral); stroke: none; }
+  .stop .name { fill: var(--map-ink, #fff); font-size: 17px; font-weight: 800; font-stretch: 87.5%; }
+  .stop .eta { fill: var(--map-muted, #b9c6cd); font-size: 13px; font-weight: 600; }
+  .stop:hover .name, .stop:focus-visible .name { text-decoration: underline; }
+  .stop.current circle { stroke: var(--c-coral); }
+  .stop.current .name { fill: var(--c-coral); }
+  .stop:focus-visible { outline: none; }
+  .stop:focus-visible circle { stroke: var(--c-coral); stroke-width: 6; }
+  figcaption { font-size: 0.8rem; color: var(--map-muted, #93a3ad); margin-top: var(--space-2); }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate .route { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.9s var(--ease) forwards; animation-delay: calc(0.15s + var(--i) * 0.12s); }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  }
+</style>
+
+<script>
+  import { etaFor, type EtaData } from '../scripts/eta';
+  document.querySelectorAll<HTMLElement>('[data-dispatch-map]').forEach((map) => {
+    const data: EtaData = JSON.parse(map.dataset.eta!);
+    const update = () => map.querySelectorAll<SVGTextElement>('[data-eta-for]').forEach((t) => {
+      t.textContent = `כ-${etaFor(data, t.dataset.etaFor!)} דקות`;
+    });
+    update();
+    setInterval(update, 60_000);
+  });
+</script>

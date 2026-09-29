@@ -1,0 +1,243 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import DispatchMap from '../components/DispatchMap.astro';
+import JobCard from '../components/JobCard.astro';
+import ReviewList from '../components/ReviewList.astro';
+import Stars from '../components/Stars.astro';
+import FaqList from '../components/FaqList.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { site, company, contact, services, areas, jobs, stats, faq, images, leakTest } from '../config/site.config';
+import { waLink, telLink, price, etaData } from '../lib/util';
+import { faqSchema } from '../lib/schema';
+
+const homeFaq = faq.slice(0, 5);
+const years = new Date().getFullYear() - site.foundedYear;
+---
+<BaseLayout
+  title={`${site.name}: מוקד אינסטלציה 24/7 בראשון לציון והשפלה`}
+  description={`אינסטלטור תוך ${company.avgArrival} דקות בממוצע בראשון לציון, חולון, בת ים, נס ציונה, רחובות ויבנה. פיצוץ צנרת, סתימות, איתור נזילות ודודים, בלי תוספת לילה ושבת.`}
+  schema={[faqSchema(homeFaq)]}
+>
+  <section class="hero on-dark">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <h1>אינסטלטור אצלכם תוך {company.avgArrival} דקות. גם בשתיים בלילה.</h1>
+        <p class="lead">
+          {company.technicians} טכנאים ו-{company.vans} רכבים מפוזרים בשפלה, ומוקד שעונה בכל שעה.
+          מחיר לפני שמתחילים, ובלי תוספת על לילה, שבת או חג.
+        </p>
+        <div class="actions">
+          <a class="btn btn--lg" href={telLink}><Icon name="phone" size={20} />התקשרו למוקד <span dir="ltr" class="tnum">{contact.phone}</span></a>
+          <a class="btn btn--lg btn--wa" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={22} />וואטסאפ</a>
+        </div>
+        <ul class="promises">
+          {company.promises.map((p) => <li><Icon name="check" size={18} /><span><strong>{p.title}.</strong> {p.text}</span></li>)}
+        </ul>
+      </div>
+      <div class="hero-map">
+        <DispatchMap />
+      </div>
+    </div>
+  </section>
+
+  <section class="section flow">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="station">במה אנחנו מטפלים</h2>
+        <p>שישה סוגי עבודה. לכל אחד צבע משלו באתר, ועמוד עם מחירים, תהליך ושאלות.</p>
+      </div>
+      <ul class="lines">
+        {services.map((s) => (
+          <li style={`--line:${s.color}`}>
+            <a href={`/services/${s.slug}/`}>
+              <span class="bar" aria-hidden="true"></span>
+              <span class="l-title">{s.title}</span>
+              <span class="l-short">{s.short}</span>
+              <span class="l-price">מ-{price(Math.min(...s.prices.map((p) => p.from)))}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--fog flow">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="station">מה קורה אחרי שמתקשרים</h2>
+        <p>אותו תהליך בכל שעה, בכל עבודה.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>המוקדנית עונה</h3><p>שואלת מה קרה ומסבירה איך לעצור את המים עד שהטכנאי מגיע.</p></li>
+        <li><h3>הודעה עם שם וזמן</h3><p>בוואטסאפ: מי הטכנאי, תמונה שלו, ובעוד כמה דקות הוא אצלכם.</p></li>
+        <li><h3>מחיר לפני העבודה</h3><p>הטכנאי בודק ואומר מחיר. מתחיל רק אחרי שאישרתם.</p></li>
+        <li><h3>אחריות בכתב</h3><p>{company.warrantyMonths} חודשים, עם מספר קריאה. אם זה חוזר, חוזרים.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section flow">
+    <div class="wrap leak">
+      <div>
+        <h2 class="station">חשבון מים גבוה? בדקו בעצמכם</h2>
+        <p class="lead">סוגרים את כל הברזים, רושמים את המספר במד המים, ומחכים {leakTest.minutes} דקות. הבדיקה שלנו באתר מחשבת כמה מים וכמה כסף הולכים לאיבוד בחודש.</p>
+        <p><a class="btn btn--ink" href="/leak-test/"><Icon name="timer" size={20} />לבדיקת מד המים</a></p>
+      </div>
+      <Picture src={images.meters} alt={images.metersAlt} widths={[480, 720]} sizes="(min-width: 900px) 30rem, 100vw" formats={['avif', 'webp']} loading="lazy" class="leak-photo" />
+    </div>
+  </section>
+
+  <section class="section section--fog flow">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="station">כמה זמן לוקח להגיע</h2>
+        <p>זמן משוער מהמוקד לפי השעה עכשיו. בשעות העומס מוסיפים כרבע שעה.</p>
+      </div>
+      <table class="table eta-table" data-eta-table data-eta={JSON.stringify(etaData())}>
+        <caption class="visually-hidden">זמן הגעה משוער לכל עיר</caption>
+        <thead><tr><th scope="col">עיר</th><th scope="col">זמן הגעה משוער</th><th scope="col">שכונות לדוגמה</th></tr></thead>
+        <tbody>
+          {areas.map((a) => (
+            <tr>
+              <th scope="row"><a href={`/areas/${a.slug}/`}>{a.name}</a></th>
+              <td class="tnum" data-eta-cell={a.slug}>כ-{a.minutes} דקות</td>
+              <td class="muted">{a.neighborhoods.slice(0, 3).join(', ')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section flow">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="station">מהקריאות האחרונות</h2>
+        <p>מה היה, מה עשינו, כמה זמן וכמה זה עלה. <a href="/jobs/">לכל העבודות</a></p>
+      </div>
+      <div class="jobs">{jobs.slice(0, 3).map((j) => <JobCard job={j} />)}</div>
+    </div>
+  </section>
+
+  <section class="section section--fog flow">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="station">מה לקוחות כותבים</h2>
+        <p class="rating"><Stars rating={stats.rating} /> {stats.rating} מתוך 5, לפי {stats.reviewCount} ביקורות. <a href="/reviews/">כל ההמלצות</a></p>
+      </div>
+      <ReviewList limit={3} />
+    </div>
+  </section>
+
+  <section class="section flow">
+    <div class="wrap team">
+      <div>
+        <h2 class="station">מוקד, לא אינסטלטור אחד</h2>
+        <p class="lead">כשאינסטלטור עצמאי תקוע בעבודה אחרת, אתם מחכים. אצלנו המוקד רואה איפה כל רכב, ושולח את מי שהכי קרוב.</p>
+        <dl class="numbers">
+          <div><dt>טכנאים</dt><dd>{company.technicians}</dd></div>
+          <div><dt>רכבים עם מצלמת ביוב</dt><dd>{company.vans}</dd></div>
+          <div><dt>שנים בשפלה</dt><dd>{years}</dd></div>
+          <div><dt>קריאות בשנה</dt><dd>{company.jobsPerYear.toLocaleString('he-IL')}</dd></div>
+        </dl>
+        <p><a href="/about/">מי אנחנו</a></p>
+      </div>
+      <Picture src={images.fleet} alt={images.fleetAlt} widths={[480, 720, 960]} sizes="(min-width: 900px) 40vw, 100vw" formats={['avif', 'webp']} loading="lazy" class="team-photo" />
+    </div>
+  </section>
+
+  <section class="section section--fog flow flow--end">
+    <div class="wrap faq-grid">
+      <h2 class="station">שאלות שחוזרות</h2>
+      <div>
+        <FaqList items={homeFaq} />
+        <p class="more"><a href="/faq/">כל השאלות</a></p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .hero { background: var(--c-ink); color: #d5dee3; padding-block: var(--space-7) var(--space-8); overflow: hidden; }
+  .hero-grid { display: grid; gap: var(--space-7); align-items: center; }
+  .hero-text { display: grid; gap: var(--space-5); justify-items: start; }
+  .hero h1 { color: #fff; max-width: 13ch; }
+  .hero .lead { color: #b9c6cd; }
+  .promises { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+  .promises li { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.97rem; }
+  .promises :global(svg) { color: #3ddc97; flex: none; margin-top: 0.25rem; }
+  .promises strong { color: #fff; }
+  .hero-map { max-width: 30rem; width: 100%; justify-self: center; }
+  @media (min-width: 1000px) {
+    .hero { padding-block: var(--space-8); }
+    .hero-grid { grid-template-columns: 1.15fr 1fr; gap: var(--space-8); }
+    .promises { grid-template-columns: 1fr 1fr; gap: 0.6rem var(--space-5); }
+  }
+
+  .lines { list-style: none; padding: 0; display: grid; }
+  .lines a {
+    display: grid; grid-template-columns: 1fr auto; gap: 0.25rem var(--space-5); align-items: baseline;
+    padding-block: var(--space-4); text-decoration: none; color: var(--c-text); border-bottom: 1px solid var(--c-line);
+  }
+  .bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--line); width: 4rem; transition: width 0.3s var(--ease); }
+  .lines a:hover .bar { width: 8rem; }
+  .l-title { font-size: var(--step-2); font-weight: 800; font-stretch: 75%; line-height: 1.15; color: var(--c-ink); }
+  .l-price { font-weight: 700; color: var(--c-text); white-space: nowrap; }
+  .l-short { grid-column: 1 / -1; color: var(--c-muted); }
+  .lines a:hover .l-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--line); }
+  @media (min-width: 900px) {
+    .lines a { grid-template-columns: 5rem minmax(14rem, 1fr) 1.4fr auto; align-items: center; }
+    .bar { grid-column: auto; width: 100%; }
+    .l-short { grid-column: auto; }
+    .lines a:hover .bar { width: 100%; }
+  }
+
+  .steps { list-style: none; padding: 0; display: grid; gap: var(--space-5); counter-reset: step; }
+  @media (min-width: 800px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+  .steps li { counter-increment: step; display: grid; gap: var(--space-2); align-content: start; }
+  .steps li::before {
+    content: counter(step); display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%;
+    background: var(--c-ink); color: #fff; font-weight: 800; margin-bottom: var(--space-2);
+  }
+
+  .leak { display: grid; gap: var(--space-6); align-items: center; }
+  .leak h2 { margin-bottom: var(--space-4); }
+  .leak .lead { margin-bottom: var(--space-5); }
+  .leak :global(.leak-photo) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius); }
+  @media (min-width: 900px) { .leak { grid-template-columns: 1.3fr 1fr; gap: var(--space-8); } }
+
+  .eta-table tbody th a { font-size: 1.2rem; font-weight: 800; font-stretch: 87.5%; color: var(--c-ink); }
+  .eta-table td[data-eta-cell] { font-weight: 700; white-space: nowrap; }
+
+  .jobs { display: grid; gap: var(--space-5); }
+  @media (min-width: 760px) { .jobs { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .jobs { grid-template-columns: repeat(3, 1fr); } }
+
+  .rating { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+
+  .team { display: grid; gap: var(--space-6); align-items: center; }
+  .team :global(.team-photo) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius); }
+  .team h2 { margin-bottom: var(--space-4); }
+  .numbers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-block: var(--space-5); }
+  .numbers div { display: flex; flex-direction: column-reverse; border-top: 3px solid var(--c-ink); padding-top: var(--space-2); }
+  .numbers dt { font-size: 0.9rem; color: var(--c-muted); }
+  .numbers dd { font-size: var(--step-4); font-weight: 800; font-stretch: 75%; line-height: 1; color: var(--c-ink); }
+  @media (min-width: 900px) { .team { grid-template-columns: 1.1fr 1fr; gap: var(--space-8); } }
+
+  .faq-grid { display: grid; gap: var(--space-6); }
+  @media (min-width: 900px) { .faq-grid { grid-template-columns: 1fr 2fr; gap: var(--space-8); } }
+  .more { margin-top: var(--space-5); }
+</style>
+
+<script>
+  import { etaFor, type EtaData } from '../scripts/eta';
+  const table = document.querySelector<HTMLElement>('[data-eta-table]');
+  if (table) {
+    const data: EtaData = JSON.parse(table.dataset.eta!);
+    table.querySelectorAll<HTMLElement>('[data-eta-cell]').forEach((td) => { td.textContent = `כ-${etaFor(data, td.dataset.etaCell!)} דקות`; });
+  }
+</script>

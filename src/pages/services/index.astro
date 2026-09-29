@@ -1,0 +1,53 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { services, images } from '../../config/site.config';
+import { breadcrumbSchema, home } from '../../lib/schema';
+import { price } from '../../lib/util';
+
+const crumbs = [home, { label: 'שירותים', href: '/services/' }];
+---
+<BaseLayout
+  title="שירותי אינסטלציה בשפלה: חירום, סתימות, נזילות, דודים וצנרת"
+  description="כל שירותי האינסטלציה של פלואוליין בראשון לציון והשפלה: פיצוץ צנרת, פתיחת סתימות עם מצלמה, איתור נזילות, דודים, החלפת צנרת ומשאבות."
+  schema={[breadcrumbSchema(crumbs)]}
+>
+  <PageHead crumbs={crumbs} title="שירותים" lead="שישה סוגי עבודה, לכל אחד צבע קבוע באתר. בכל עמוד שירות יש מחירון, תהליך עבודה ושאלות נפוצות." image={images.team} imageAlt={images.teamAlt} />
+
+  <section class="section">
+    <div class="wrap">
+      <ul class="grid">
+        {services.map((s) => (
+          <li style={`--line:${s.color}`}>
+            <a href={`/services/${s.slug}/`} class="card">
+              <Picture src={s.image} alt="" widths={[400, 640]} sizes="(min-width: 1000px) 22rem, (min-width: 640px) 45vw, 100vw" formats={['avif', 'webp']} loading="lazy" />
+              <span class="body">
+                <span class="t">{s.title}</span>
+                <span class="d">{s.short}</span>
+                <span class="p">מ-{price(Math.min(...s.prices.map((p) => p.from)))}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .grid { list-style: none; padding: 0; display: grid; gap: var(--space-5); }
+  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .grid li { display: grid; }
+  .card { display: grid; grid-template-rows: auto 1fr; background: var(--c-panel); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: var(--c-text); border-top: 6px solid var(--line); }
+  .card :global(img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .body { display: grid; gap: var(--space-2); padding: var(--space-5); align-content: start; }
+  .t { font-size: var(--step-2); font-weight: 800; font-stretch: 75%; line-height: 1.15; color: var(--c-ink); }
+  .card:hover .t { text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 3px; }
+  .d { color: var(--c-muted); }
+  .p { font-weight: 700; }
+</style>

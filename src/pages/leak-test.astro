@@ -1,0 +1,202 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { leakTest, images, services } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+import { waLink } from '../lib/util';
+
+const crumbs = [home, { label: 'בדיקת מד מים', href: '/leak-test/' }];
+const leakService = services.find((s) => s.slug === 'leak-detection')!;
+const howTo = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'איך בודקים נזילה נסתרת בעזרת מד המים',
+  totalTime: `PT${leakTest.minutes}M`,
+  step: [
+    'סוגרים את כל הברזים בבית, כולל מכונת כביסה, מדיח ומזגן עם ניקוז מים.',
+    'רושמים את הקריאה במד המים, כולל הספרות האדומות שאחרי הנקודה.',
+    `מחכים ${leakTest.minutes} דקות בלי להשתמש במים.`,
+    'רושמים שוב את הקריאה ומשווים.',
+  ].map((text, i) => ({ '@type': 'HowToStep', position: i + 1, text })),
+};
+---
+<BaseLayout
+  title="בדיקת מד מים: יש לכם נזילה נסתרת?"
+  description={`בודקים נזילה נסתרת תוך ${leakTest.minutes} דקות: סוגרים ברזים, רושמים את מד המים, והמחשבון מראה כמה ליטרים וכמה שקלים הולכים לאיבוד בחודש.`}
+  schema={[breadcrumbSchema(crumbs), howTo]}
+>
+  <PageHead crumbs={crumbs} title="בדיקת מד מים" lead={`חשבון מים גבוה בלי סיבה ברורה? הבדיקה לוקחת ${leakTest.minutes} דקות ולא צריך כלים. אם המד זז כשכל הברזים סגורים, יש נזילה.`} image={images.meters} imageAlt={images.metersAlt} color={leakService.color} />
+
+  <section class="section">
+    <div class="wrap layout" style={`--c-coral:${leakService.color}`}>
+      <form class="tool" data-leak-test data-tariff={leakTest.tariffHigh} data-minutes={leakTest.minutes} novalidate>
+        <fieldset>
+          <legend><span class="n">1</span>סגרו את כל הברזים</legend>
+          <p>כולל מכונת כביסה, מדיח, מזגנים עם ניקוז, וברזי השקיה בחצר. אל תורידו מים באסלה בזמן הבדיקה.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="n">2</span>רשמו את הקריאה הראשונה</legend>
+          <div class="field">
+            <label for="lt-start">קריאה במ"ק, כולל הספרות אחרי הנקודה</label>
+            <input id="lt-start" name="start" type="text" inputmode="decimal" dir="ltr" placeholder="1234.567" autocomplete="off" aria-describedby="lt-start-hint" />
+            <p class="hint" id="lt-start-hint">הספרות השחורות הן מטרים מעוקבים. האדומות, אחרי הנקודה, הן אלפיות: כל ספרה אחרונה היא ליטר.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="n">3</span>חכו בלי להשתמש במים</legend>
+          <div class="timer" aria-live="polite">
+            <p class="clock tnum" data-clock>{leakTest.minutes}:00</p>
+            <div class="actions">
+              <button type="button" class="btn btn--ink" data-timer-start><Icon name="timer" size={20} />התחלת טיימר</button>
+              <button type="button" class="btn btn--ghost" data-timer-reset hidden>איפוס</button>
+            </div>
+            <p class="hint" data-timer-note>אפשר גם בלי טיימר: רשמו את השעה, וחזרו אחרי חצי שעה.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="n">4</span>רשמו את הקריאה השנייה</legend>
+          <div class="two">
+            <div class="field">
+              <label for="lt-end">קריאה שנייה במ"ק</label>
+              <input id="lt-end" name="end" type="text" inputmode="decimal" dir="ltr" placeholder="1234.589" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="lt-min">כמה דקות עברו</label>
+              <input id="lt-min" name="minutes" type="number" inputmode="numeric" min="5" max="240" value={leakTest.minutes} />
+            </div>
+          </div>
+          <button type="submit" class="btn">חישוב התוצאה</button>
+        </fieldset>
+      </form>
+
+      <aside class="result" aria-labelledby="lt-result-title">
+        <h2 id="lt-result-title">התוצאה</h2>
+        <div data-result aria-live="polite">
+          <p class="muted">מלאו את שתי הקריאות ולחצו על "חישוב התוצאה".</p>
+        </div>
+        <p class="note">{leakTest.tariffNote}</p>
+        <a class="btn btn--wa btn--block" href={waLink('שלום, עשיתי בדיקת מד מים ונראה שיש נזילה')} target="_blank" rel="noopener" data-result-wa hidden><Icon name="whatsapp" size={20} />להזמנת איתור נזילה</a>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--fog">
+    <div class="wrap tips">
+      <div>
+        <h2>בדיקה מהירה בדקה אחת</h2>
+        <p class="lead">ברוב מדי המים יש גלגל קטן, כוכב או משולש שמסתובב גם בזרימה חלשה מאוד. אם כל הברזים סגורים והוא זז, יש נזילה.</p>
+      </div>
+      <div>
+        <h2>ואם יש נזילה?</h2>
+        <p class="lead">נזילה נסתרת נמצאת בדרך כלל בקיר או מתחת לריצוף. <a href={`/services/${leakService.slug}/`}>איתור נזילות בלי שבירה</a> מוצא את הנקודה המדויקת, עם דוח לביטוח.</p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="המד זז? נמצא את הנזילה." waText="שלום, עשיתי בדיקת מד מים ונראה שיש נזילה" />
+</BaseLayout>
+
+<style>
+  .layout { display: grid; gap: var(--space-7); align-items: start; }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 1.5fr 1fr; } }
+  .tool { display: grid; gap: var(--space-6); }
+  fieldset { border: 0; padding: 0; display: grid; gap: var(--space-3); min-width: 0; }
+  legend { display: flex; align-items: center; gap: var(--space-3); font-size: var(--step-2); font-weight: 800; font-stretch: 75%; color: var(--c-ink); margin-bottom: var(--space-2); padding: 0; }
+  .n { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--c-coral); color: #fff; font-size: 1rem; flex: none; }
+  .hint { font-size: 0.875rem; color: var(--c-muted); }
+  .timer { background: var(--c-panel); border-radius: var(--radius); padding: var(--space-5); display: grid; gap: var(--space-3); justify-items: start; }
+  .clock { font-size: var(--step-5); font-weight: 800; font-stretch: 75%; line-height: 1; color: var(--c-ink); direction: ltr; }
+  .two { display: grid; gap: var(--space-4); }
+  @media (min-width: 560px) { .two { grid-template-columns: 1.4fr 1fr; } }
+  .tool button[type='submit'] { justify-self: start; }
+  .result { background: var(--c-ink); color: #d5dee3; border-radius: var(--radius); padding: var(--space-6); display: grid; gap: var(--space-4); }
+  @media (min-width: 1000px) { .result { position: sticky; top: 7rem; } }
+  .result h2 { font-size: var(--step-3); color: #fff; }
+  .result .muted { color: #b9c6cd; }
+  .result :global(.verdict) { font-size: var(--step-2); font-weight: 800; font-stretch: 75%; line-height: 1.2; color: #fff; }
+  .result :global(.verdict.bad) { color: #ff9b8a; }
+  .result :global(.verdict.ok) { color: #7ee2b8; }
+  .result :global(dl) { display: grid; border-top: 1px solid rgb(255 255 255 / 0.18); }
+  .result :global(dl div) { display: flex; justify-content: space-between; gap: var(--space-4); padding-block: 0.55rem; border-bottom: 1px solid rgb(255 255 255 / 0.18); }
+  .result :global(dd) { font-weight: 700; color: #fff; }
+  .note { font-size: 0.85rem; color: #93a3ad; }
+  .tips { display: grid; gap: var(--space-7); }
+  @media (min-width: 900px) { .tips { grid-template-columns: 1fr 1fr; gap: var(--space-8); } }
+  .tips h2 { font-size: var(--step-3); margin-bottom: var(--space-4); }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-leak-test]')!;
+  const out = document.querySelector<HTMLElement>('[data-result]')!;
+  const wa = document.querySelector<HTMLAnchorElement>('[data-result-wa]')!;
+  const tariff = Number(form.dataset.tariff);
+  const total = Number(form.dataset.minutes) * 60;
+  const clock = form.querySelector<HTMLElement>('[data-clock]')!;
+  const startBtn = form.querySelector<HTMLButtonElement>('[data-timer-start]')!;
+  const resetBtn = form.querySelector<HTMLButtonElement>('[data-timer-reset]')!;
+  const note = form.querySelector<HTMLElement>('[data-timer-note]')!;
+  let timer: number | undefined;
+  let left = total;
+
+  const show = () => { clock.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`; };
+  startBtn.addEventListener('click', () => {
+    if (timer) return;
+    const end = Date.now() + left * 1000;
+    startBtn.disabled = true; resetBtn.hidden = false;
+    note.textContent = 'הטיימר רץ. אפשר לסגור את המסך, הוא ימשיך לחשב.';
+    timer = window.setInterval(() => {
+      left = Math.max(0, Math.round((end - Date.now()) / 1000));
+      show();
+      if (!left) {
+        clearInterval(timer); timer = undefined;
+        note.textContent = 'הזמן עבר. רשמו עכשיו את הקריאה השנייה.';
+        form.querySelector<HTMLInputElement>('#lt-end')!.focus();
+      }
+    }, 1000);
+  });
+  resetBtn.addEventListener('click', () => {
+    clearInterval(timer); timer = undefined; left = total; show();
+    startBtn.disabled = false; resetBtn.hidden = true;
+    note.textContent = 'אפשר גם בלי טיימר: רשמו את השעה, וחזרו אחרי חצי שעה.';
+  });
+
+  const num = (name: string) => Number(((form.elements.namedItem(name) as HTMLInputElement).value || '').replace(',', '.').trim());
+  const fmt = (n: number, d = 0) => n.toLocaleString('he-IL', { maximumFractionDigits: d, minimumFractionDigits: d });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const a = num('start'); const b = num('end'); const mins = num('minutes');
+    if (!a || !b || !mins || Number.isNaN(a) || Number.isNaN(b)) {
+      out.innerHTML = '<p class="verdict bad">חסרה קריאה</p><p>מלאו את שתי הקריאות של המד, במ"ק, ואת מספר הדקות.</p>';
+      wa.hidden = true;
+      return;
+    }
+    if (b < a) {
+      out.innerHTML = '<p class="verdict bad">הקריאה השנייה קטנה מהראשונה</p><p>בדקו שלא התחלפו הקריאות, ושרשמתם את הספרות שאחרי הנקודה.</p>';
+      wa.hidden = true;
+      return;
+    }
+    const liters = (b - a) * 1000;
+    const perMonthM3 = (liters / mins) * 60 * 24 * 30 / 1000;
+    const cost = perMonthM3 * tariff;
+    if (liters < 0.5) {
+      out.innerHTML = `<p class="verdict ok">המד לא זז. כנראה אין נזילה נסתרת.</p><p>אם החשבון עדיין גבוה, בדקו אסלה שממשיכה למלא מים, וברז השקיה בחצר.</p>`;
+      wa.hidden = true;
+      return;
+    }
+    out.innerHTML = `<p class="verdict bad">המד זז: כנראה יש נזילה</p>
+      <dl>
+        <div><dt>ב-${fmt(mins)} דקות</dt><dd>${fmt(liters, 1)} ליטר</dd></div>
+        <div><dt>בחודש</dt><dd>${fmt(perMonthM3, 1)} מ"ק</dd></div>
+        <div><dt>עלות משוערת בחודש</dt><dd>${fmt(cost)} ₪</dd></div>
+      </dl>
+      <p>${cost > 150 ? 'זו נזילה משמעותית. כדאי לטפל בה בימים הקרובים, גם בגלל נזק מים לקירות.' : 'נזילה קטנה, אבל היא מצטברת. כדאי לאתר אותה לפני שהיא גדלה.'}</p>`;
+    wa.hidden = false;
+    wa.href = `https://wa.me/${wa.href.split('wa.me/')[1].split('?')[0]}?text=${encodeURIComponent(`שלום, עשיתי בדיקת מד מים: ${fmt(liters, 1)} ליטר ב-${fmt(mins)} דקות. אשמח לאיתור נזילה.`)}`;
+  });
+</script>

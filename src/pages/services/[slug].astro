@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import Icon from '../../components/Icon.astro';
+import FaqList from '../../components/FaqList.astro';
+import PriceTable from '../../components/PriceTable.astro';
+import JobCard from '../../components/JobCard.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { services, jobs, areas, site, company, type Service } from '../../config/site.config';
+import { breadcrumbSchema, faqSchema, businessRef, home } from '../../lib/schema';
+import { price, waLink, telLink } from '../../lib/util';
+
+export function getStaticPaths() {
+  return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
+}
+interface Props { service: Service }
+const { service: s } = Astro.props;
+
+const crumbs = [home, { label: 'שירותים', href: '/services/' }, { label: s.title, href: `/services/${s.slug}/` }];
+const minPrice = Math.min(...s.prices.map((p) => p.from));
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: s.title,
+  serviceType: s.title,
+  description: s.intro,
+  provider: businessRef,
+  areaServed: areas.map((a) => ({ '@type': 'City', name: a.name })),
+  url: `${site.url}/services/${s.slug}/`,
+  offers: s.prices.map((p) => ({
+    '@type': 'Offer',
+    name: p.job,
+    priceSpecification: { '@type': 'PriceSpecification', minPrice: p.from, maxPrice: p.to, priceCurrency: 'ILS' },
+  })),
+};
+const job = jobs.find((j) => j.service === s.slug);
+const others = services.filter((o) => o.slug !== s.slug);
+const formTopic = { 'emergency-repairs': 'תקלת חירום', 'drain-cleaning': 'סתימה', 'leak-detection': 'איתור נזילה', 'water-heaters': 'דוד מים', repiping: 'צנרת ושיפוץ', 'pumps-drainage': 'משאבה או ועד בית' }[s.slug];
+---
+<BaseLayout
+  title={`${s.title}: ${s.keyword} והשפלה`}
+  description={`${s.short} מ-${price(minPrice)}, מחיר לפני העבודה ואחריות ${company.warrantyMonths} חודשים. מוקד 24/7 בראשון לציון והשפלה.`}
+  schema={[breadcrumbSchema(crumbs), serviceSchema, faqSchema(s.faq)]}
+  ogImage={s.image}
+>
+  <PageHead crumbs={crumbs} title={s.title} lead={s.intro} image={s.image} imageAlt={s.imageAlt} color={s.color}>
+    <div class="actions">
+      <a class="btn" href={telLink}><Icon name="phone" size={19} />התקשרו למוקד</a>
+      <a class="btn btn--wa" href={waLink(`שלום, אני צריך ${s.title}`)} target="_blank" rel="noopener"><Icon name="whatsapp" size={20} />וואטסאפ</a>
+    </div>
+  </PageHead>
+
+  <div style={`--c-coral:${s.color}`}>
+    <section class="section flow">
+      <div class="wrap cols">
+        <div>
+          <h2 class="station">מתי מזמינים</h2>
+          <ul class="ticks">{s.signs.map((w) => <li><Icon name="drop" size={18} />{w}</li>)}</ul>
+        </div>
+        <div>
+          <h2 class="h-sub">מחירים</h2>
+          <PriceTable rows={s.prices} caption={`מחירון ${s.title}`} />
+          <p class="small">המחיר המדויק נקבע אחרי בדיקה, לפני שמתחילים. אין תוספת לילה, שבת או חג. <a href="/prices/">מחירון מלא</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--fog flow">
+      <div class="wrap">
+        <h2 class="station h">איך העבודה מתנהלת</h2>
+        <ol class="steps">{s.process.map((p) => <li><h3>{p.title}</h3><p>{p.text}</p></li>)}</ol>
+      </div>
+    </section>
+
+    {job && (
+      <section class="section flow">
+        <div class="wrap job-wrap">
+          <div>
+            <h2 class="station">דוגמה מהשטח</h2>
+            <p class="lead">קריאה אמיתית מהשבועות האחרונים, עם הבעיה, הפתרון והמחיר הסופי.</p>
+            <p><a href="/jobs/">עוד עבודות</a></p>
+          </div>
+          <JobCard job={job} />
+        </div>
+      </section>
+    )}
+
+    <section class="section section--fog flow flow--end">
+      <div class="wrap cols">
+        <div>
+          <h2 class="station">שאלות על {s.title}</h2>
+          <FaqList items={s.faq} />
+        </div>
+        <div class="form-box" id="form">
+          <h2 class="h-sub">העבודה לא דחופה? השאירו פרטים</h2>
+          <ContactForm topic={formTopic} id="svc" />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="h">עוד שירותים</h2>
+      <ul class="others">
+        {others.map((o) => <li style={`--line:${o.color}`}><a href={`/services/${o.slug}/`}>{o.title}</a><span>{o.short}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand waText={`שלום, אני צריך ${s.title}`} />
+</BaseLayout>
+
+<style>
+  .cols { display: grid; gap: var(--space-7); }
+  @media (min-width: 900px) { .cols { grid-template-columns: 1fr 1fr; gap: var(--space-8); } }
+  .cols h2, .h { font-size: var(--step-3); margin-bottom: var(--space-5); }
+  .h-sub { font-size: var(--step-2); margin-bottom: var(--space-4); }
+  .ticks { list-style: none; padding: 0; display: grid; gap: var(--space-3); }
+  .ticks li { display: flex; gap: var(--space-3); align-items: flex-start; font-size: 1.08rem; }
+  .ticks :global(svg) { color: var(--c-coral); margin-top: 0.3rem; flex: none; }
+  .small { font-size: 0.9rem; color: var(--c-muted); margin-top: var(--space-4); }
+  .steps { list-style: none; padding: 0; display: grid; gap: var(--space-5); counter-reset: step; }
+  @media (min-width: 800px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+  .steps li { counter-increment: step; display: grid; gap: var(--space-2); align-content: start; }
+  .steps li::before { content: counter(step); display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--c-coral); color: #fff; font-weight: 800; }
+  .job-wrap { display: grid; gap: var(--space-6); align-items: start; }
+  .job-wrap h2 { font-size: var(--step-3); margin-bottom: var(--space-4); }
+  .job-wrap .lead { margin-bottom: var(--space-4); }
+  @media (min-width: 900px) { .job-wrap { grid-template-columns: 1fr 1fr; gap: var(--space-8); } }
+  .form-box { background: var(--c-panel); border-radius: var(--radius); padding: var(--space-6); align-self: start; scroll-margin-top: 8rem; }
+  .others { list-style: none; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 760px) { .others { grid-template-columns: repeat(2, 1fr); gap: var(--space-5) var(--space-7); } }
+  .others li { display: grid; gap: 0.2rem; padding-inline-start: var(--space-4); border-inline-start: 5px solid var(--line); }
+  .others a { font-size: var(--step-1); font-weight: 750; color: var(--c-ink); }
+  .others span { color: var(--c-muted); font-size: 0.97rem; }
+</style>

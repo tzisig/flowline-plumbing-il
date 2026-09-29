@@ -1,0 +1,84 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icon from '../components/Icon.astro';
+import DispatchStatus from '../components/DispatchStatus.astro';
+import { emergencies, contact, images, company } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+import { waLink, telLink } from '../lib/util';
+
+const crumbs = [home, { label: 'חירום', href: '/emergency/' }];
+const howTo = emergencies.filter((e) => e.id !== 'gas').map((e) => ({
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: e.title,
+  step: e.steps.map((t, i) => ({ '@type': 'HowToStep', position: i + 1, text: t })),
+}));
+---
+<BaseLayout
+  title="חירום אינסטלציה: מה עושים עד שהטכנאי מגיע"
+  description="צינור התפוצץ, ביוב עולה או דוד שדולף? הצעדים הראשונים לצמצום הנזק, ומוקד 24/7 שישלח טכנאי בלי תוספת לילה."
+  schema={[breadcrumbSchema(crumbs), ...howTo]}
+>
+  <section class="top on-dark">
+    <div class="wrap grid">
+      <div class="text">
+        <Breadcrumbs crumbs={crumbs} />
+        <h1>קודם מתקשרים. אחר כך סוגרים מים.</h1>
+        <p class="lead">המוקדנית תשלח טכנאי ותישאר איתכם על הקו, ותסביר מה לעשות. הצעדים כאן הם בשביל הדקות עד שהוא מגיע.</p>
+        <a class="btn btn--lg call" href={telLink}><Icon name="phone" size={22} />התקשרו למוקד <span dir="ltr" class="tnum">{contact.phone}</span></a>
+        <DispatchStatus variant="card" />
+        <p class="small">בלי תוספת על לילה, שבת או חג. אחריות {company.warrantyMonths} חודשים.</p>
+      </div>
+      <figure class="valve">
+        <Picture src={images.meterBox} alt={images.meterBoxAlt} widths={[480, 720]} sizes="(min-width: 900px) 30rem, 100vw" formats={['avif', 'webp']} loading="eager" />
+        <figcaption>הברז הראשי נמצא בדרך כלל ליד מד המים: בארון בחדר המדרגות, בגומחה בקיר החיצוני, או בכניסה לבית פרטי. כדאי לדעת איפה הוא לפני שצריך.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <nav class="tabs" aria-label="סוג התקלה">
+        {emergencies.map((e) => <a href={`#${e.id}`}>{e.title}</a>)}
+      </nav>
+      <div class="cases">
+        {emergencies.map((e) => (
+          <section id={e.id} class:list={['case', { gas: e.id === 'gas' }]}>
+            <h2>{e.title}</h2>
+            <ol>{e.steps.map((st) => <li>{st}</li>)}</ol>
+            {e.id !== 'gas' && <p class="then"><a href={waLink(`חירום: ${e.title}`)} target="_blank" rel="noopener">שלחו תמונה למוקד בוואטסאפ</a></p>}
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .top { background: var(--c-ink); color: #d5dee3; padding-block: var(--space-6) var(--space-8); }
+  .top :global(.crumbs a), .top :global(.crumbs [aria-current]) { color: #d5dee3; }
+  .grid { display: grid; gap: var(--space-7); align-items: center; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 1.2fr 1fr; gap: var(--space-8); } }
+  .text { display: grid; gap: var(--space-5); justify-items: start; }
+  .text h1 { color: #fff; margin-top: var(--space-3); }
+  .text .lead { color: #b9c6cd; }
+  .call { font-size: 1.25rem; }
+  .small { font-size: 0.9rem; color: #b9c6cd; }
+  .valve { margin: 0; display: grid; gap: var(--space-3); }
+  .valve :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius); }
+  .valve figcaption { font-size: 0.95rem; color: #b9c6cd; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: var(--space-6); }
+  .tabs a { display: inline-flex; align-items: center; min-height: 44px; padding: 0.4rem 1rem; font-weight: 700; color: var(--c-ink); background: var(--c-panel); border: 1.5px solid var(--c-line); border-radius: var(--pill); text-decoration: none; }
+  .tabs a:hover { border-color: var(--c-coral); }
+  .cases { display: grid; gap: var(--space-5); }
+  @media (min-width: 900px) { .cases { grid-template-columns: 1fr 1fr; } }
+  .case { background: var(--c-panel); border-radius: var(--radius); padding: var(--space-6); border-inline-start: 6px solid var(--c-coral); scroll-margin-top: 8rem; }
+  .case:target { box-shadow: 0 0 0 3px var(--c-coral); }
+  .case.gas { border-inline-start-color: #a15c00; background: #fff8e6; }
+  .case h2 { font-size: var(--step-3); margin-bottom: var(--space-4); }
+  .case ol { padding-inline-start: 1.4em; display: grid; gap: var(--space-3); font-size: 1.08rem; }
+  .case li::marker { font-weight: 800; color: var(--c-coral); }
+  .then { margin-top: var(--space-5); font-weight: 700; }
+</style>

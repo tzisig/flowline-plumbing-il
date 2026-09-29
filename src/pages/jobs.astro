@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import JobCard from '../components/JobCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { jobs, site } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+
+const crumbs = [home, { label: 'עבודות אחרונות', href: '/jobs/' }];
+---
+<BaseLayout
+  title="עבודות אחרונות: מה היה, מה עשינו וכמה זה עלה"
+  description="יומן קריאות אמיתי: פיצוץ צנרת בבת ים בשתיים בלילה, סתימה חוזרת בחולון, נזילה נסתרת ברחובות. הבעיה, הפתרון, הזמן והמחיר."
+  schema={[breadcrumbSchema(crumbs)]}
+>
+  <PageHead crumbs={crumbs} title="עבודות אחרונות" lead="במקום גלריה של לפני ואחרי, יומן קריאות: מה הלקוח סיפר, מה מצאנו, מה עשינו, כמה זמן זה לקח וכמה זה עלה." />
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid">{jobs.map((j) => <JobCard job={j} headingLevel="h2" />)}</div>
+      {site.isDemo && <p class="note">אתר הדגמה: הקריאות, המחירים והתמונות להמחשה בלבד.</p>}
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .grid { display: grid; gap: var(--space-5); }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .grid :global(h2) { font-size: var(--step-1); font-stretch: 87.5%; font-weight: 750; line-height: 1.2; }
+  .note { margin-top: var(--space-6); font-size: 0.9rem; color: var(--c-muted); }
+</style>

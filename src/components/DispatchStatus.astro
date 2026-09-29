@@ -1,0 +1,39 @@
+---
+// Live dispatch line in Israel time: the desk is always open; the estimate adds the rush-hour extra.
+// The static text is the fallback without JS.
+import { company, areas } from '../config/site.config';
+import { etaData } from '../lib/util';
+interface Props { variant?: 'strip' | 'card'; area?: string }
+const { variant = 'strip', area = areas[0].slug } = Astro.props;
+const a = areas.find((x) => x.slug === area)!;
+---
+<p class:list={['status', variant]} data-dispatch data-area={a.slug} data-eta={JSON.stringify(etaData())}>
+  <span class="dot" aria-hidden="true"></span>
+  <span data-dispatch-text>המוקד פעיל 24/7. זמן הגעה ממוצע: {company.avgArrival} דקות.</span>
+</p>
+
+<style>
+  .status { display: flex; align-items: center; gap: 0.6rem; margin: 0; line-height: 1.4; }
+  .dot { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #3ddc97; flex: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3ddc97; animation: ping 2.4s var(--ease) infinite; }
+    @keyframes ping { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+  }
+  .strip { justify-content: center; font-size: 0.9rem; color: #d5dee3; }
+  .card { font-size: 1rem; font-weight: 600; }
+</style>
+
+<script>
+  import { etaFor, isRush, type EtaData } from '../scripts/eta';
+  document.querySelectorAll<HTMLElement>('[data-dispatch]').forEach((el) => {
+    const data: EtaData = JSON.parse(el.dataset.eta!);
+    const update = () => {
+      const area = data.areas.find((a) => a.slug === el.dataset.area)!;
+      const eta = etaFor(data, area.slug);
+      el.querySelector('[data-dispatch-text]')!.textContent =
+        `המוקד פעיל עכשיו. טכנאי יכול להגיע ל${area.name} בעוד כ-${eta} דקות${isRush(data) ? ' (שעת עומס)' : ''}.`;
+    };
+    update();
+    setInterval(update, 60_000);
+  });
+</script>

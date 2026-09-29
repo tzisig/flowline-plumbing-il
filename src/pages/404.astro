@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { nav } from '../config/navigation';
+---
+<BaseLayout title="העמוד לא נמצא" description="העמוד שחיפשתם לא נמצא. הנה העמודים שהכי מחפשים באתר." noindex>
+  <section class="nf">
+    <div class="wrap inner">
+      <p class="label">שגיאה 404</p>
+      <h1>הקו הזה לא עוצר בתחנה הזו</h1>
+      <p class="lead">העמוד לא נמצא. אולי אחד מאלה?</p>
+      <ul>
+        <li><a href="/">דף הבית</a></li>
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { min-height: 60svh; display: grid; align-items: center; padding-block: var(--space-9); }
+  .inner { display: grid; gap: var(--space-4); }
+  ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: var(--space-4); }
+  ul a { display: inline-flex; align-items: center; min-height: 44px; padding: 0.4rem 1rem; border: 1px solid var(--c-line); border-radius: var(--pill); text-decoration: none; background: #fff; }
+  ul a:hover { border-color: var(--c-grape); }
+</style>

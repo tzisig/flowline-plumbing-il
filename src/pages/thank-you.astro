@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { contact } from '../config/site.config';
+import { waLink, telLink } from '../lib/util';
+---
+<BaseLayout title="תודה, הפנייה הגיעה למוקד" description="הפנייה התקבלה במוקד. נחזור אליכם בהקדם." noindex>
+  <section class="thanks">
+    <div class="wrap inner">
+      <h1>הפנייה הגיעה למוקד</h1>
+      <p class="lead">מוקדנית תחזור אליכם בהקדם. בשעות היום בדרך כלל תוך חצי שעה.</p>
+      <p>אם זו תקלה דחופה, אל תחכו לטלפון מאיתנו. התקשרו עכשיו, והטכנאי יצא מיד.</p>
+      <div class="actions">
+        <a class="btn btn--lg" href={telLink}><Icon name="phone" size={20} /><span dir="ltr" class="tnum">{contact.phone}</span></a>
+        <a class="btn btn--lg btn--wa" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={22} />וואטסאפ</a>
+      </div>
+      <p><a href="/emergency/">מה עושים עד שהטכנאי מגיע</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .thanks { min-height: 60svh; display: grid; align-items: center; padding-block: var(--space-9); }
+  .inner { display: grid; gap: var(--space-4); justify-items: start; }
+</style>

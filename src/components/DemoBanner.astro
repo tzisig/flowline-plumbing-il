@@ -1,0 +1,25 @@
+---
+// Shown only in demo mode (site.isDemo): a banner at the top of every page and a small fixed badge,
+// so screenshots and visitors can always tell the data is invented.
+import { site } from '../config/site.config';
+---
+{site.isDemo && (
+  <>
+    <aside class="demo-banner" aria-label="הודעת הדגמה">
+      <p class="wrap"><strong>דמו</strong> <span>{site.demoNote}</span></p>
+    </aside>
+    <p class="demo-badge" aria-hidden="true">דמו</p>
+  </>
+)}
+
+<style>
+  .demo-banner { background: #f2c94c; color: var(--c-ink); font-size: 0.875rem; line-height: 1.45; }
+  .demo-banner p { padding-block: 0.45rem; text-align: center; }
+  .demo-banner strong { display: inline-block; font-weight: 600; background: var(--c-ink); color: #f2c94c; padding: 0.05rem 0.55rem; margin-inline-end: 0.4rem; border-radius: var(--radius); }
+  .demo-badge {
+    position: fixed; z-index: 70; left: 12px; bottom: calc(var(--mobile-bar) + 12px + env(safe-area-inset-bottom));
+    padding: 0.2rem 0.7rem; font-size: 0.8rem; font-weight: 600;
+    background: #f2c94c; color: var(--c-ink); border: 1px solid var(--c-ink); border-radius: var(--radius);
+    pointer-events: none;
+  }
+</style>

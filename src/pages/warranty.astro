@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { site, contact, legal, company } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+import { formatDate } from '../lib/util';
+
+const crumbs = [home, { label: 'אחריות ותנאי שירות', href: '/warranty/' }];
+---
+<BaseLayout title="אחריות ותנאי שירות" description={`תנאי השירות של ${site.name}: מחירים, תשלום, ביטול קריאה ואחריות של ${company.warrantyMonths} חודשים על כל עבודה.`} schema={[breadcrumbSchema(crumbs)]}>
+  <PageHead crumbs={crumbs} title="אחריות ותנאי שירות" lead={`עודכן לאחרונה: ${formatDate(legal.termsUpdated)}`} />
+  <section class="section">
+    <div class="wrap prose">
+      <p>התנאים האלה חלים על כל קריאה ל{legal.businessName}, בטלפון, בוואטסאפ או באתר. כתבנו אותם בשפה פשוטה.</p>
+
+      <h2>מחיר</h2>
+      <ul>
+        <li>כל המחירים באתר כוללים מע"מ, והם אותם מחירים בכל שעה, כולל לילות, שבתות וחגים.</li>
+        <li>המחירים באתר הם טווחים. הטכנאי אומר מחיר מדויק אחרי בדיקה, ומתחיל לעבוד רק אחרי שאישרתם אותו.</li>
+        <li>דמי יציאה ואבחון נגבים רק אם בחרתם לא לבצע את העבודה אחרי שקיבלתם מחיר.</li>
+      </ul>
+
+      <h2>ביטול קריאה</h2>
+      <p>אפשר לבטל קריאה בלי תשלום עד שהטכנאי יצא אליכם. ביטול אחרי שהטכנאי כבר בדרך יחויב בדמי יציאה בלבד.</p>
+
+      <h2>אחריות</h2>
+      <ul>
+        <li>על כל עבודה יש אחריות של {company.warrantyMonths} חודשים, בכתב, עם מספר קריאה.</li>
+        <li>אם אותה תקלה חוזרת בתקופת האחריות, מתקנים אותה בלי תשלום.</li>
+        <li>על חלקים ומוצרים (דודים, משאבות, ברזים) חלה גם אחריות היצרן.</li>
+        <li>האחריות לא חלה על נזק שנגרם משימוש לא נכון, מעבודה של גורם אחר אחרינו, או מסתימה חדשה שנגרמה מחפץ או משומן.</li>
+      </ul>
+
+      <h2>נזקים וביטוח</h2>
+      <p>יש לנו ביטוח צד שלישי ואחריות מקצועית. לתביעות מול חברת הביטוח שלכם אנחנו מכינים דוח עם תמונות, תיאור וחשבונית.</p>
+
+      <h2>פרטי העסק</h2>
+      <p>{legal.businessName}, ח"פ {legal.businessId}, {contact.street}. מייל: <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+      {site.isDemo && <p><strong>אתר הדגמה:</strong> התנאים כתובים כדוגמה וצריכים בדיקה של עורך דין לפני שימוש בעסק אמיתי.</p>}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,189 @@
+/* Design tokens that are not client colors. Colors come from site.config.ts (see BaseLayout). */
+:root {
+  --font: 'Noto Sans Hebrew Variable', 'Noto Sans Hebrew', 'Arial Hebrew', Arial, sans-serif;
+
+  /* Type scale: perfect fourth (1.333) from a 17px base */
+  --step--1: 0.85rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.35rem;
+  --step-2: clamp(1.5rem, 1.3rem + 0.8vw, 1.8rem);
+  --step-3: clamp(1.9rem, 1.5rem + 1.8vw, 2.6rem);
+  --step-4: clamp(2.4rem, 1.7rem + 3.2vw, 3.8rem);
+  --step-5: clamp(2.8rem, 1.8rem + 4.6vw, 5.2rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6.5rem;
+
+  --wrap: 74rem;
+  --radius: 6px;
+  --pill: 999px;
+  --mobile-bar: 0px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* The flow line: distance from the page edge to the line, and the text indent after it */
+  --line-x: max(1rem, (100% - var(--wrap)) / 2);
+  --line-gap: 2.25rem;
+}
+
+@media (max-width: 859px) {
+  :root { --mobile-bar: 64px; }
+}
+@media (min-width: 700px) {
+  :root { --line-x: max(2rem, (100% - var(--wrap)) / 2); --line-gap: 3rem; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 6rem; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+body {
+  font-family: var(--font);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  color: var(--c-text);
+  background: var(--c-paper);
+  padding-bottom: var(--mobile-bar);
+}
+
+img, svg, picture { display: block; max-width: 100%; }
+img { height: auto; }
+
+/* Headings: condensed and heavy, like transit signage */
+h1, h2, h3 {
+  font-family: var(--font);
+  font-stretch: 75%;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--c-ink);
+  text-wrap: balance;
+}
+h1 { font-size: var(--step-5); letter-spacing: -0.01em; }
+h2 { font-size: var(--step-4); }
+h3 { font-size: var(--step-1); font-weight: 750; line-height: 1.2; font-stretch: 87.5%; }
+p, li { text-wrap: pretty; }
+
+a { color: var(--c-teal); text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 3px solid var(--c-coral); outline-offset: 3px; border-radius: 2px; }
+.on-dark :focus-visible, .on-dark:focus-visible { outline-color: #fff; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; top: 0.5rem; inset-inline-start: 0.5rem; z-index: 200;
+  padding: 0.6rem 1rem; background: var(--c-ink); color: #fff; transform: translateY(-160%);
+}
+.skip-link:focus { transform: none; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---------- Layout ---------- */
+.wrap { width: min(100% - 2rem, var(--wrap)); margin-inline: auto; }
+@media (min-width: 700px) { .wrap { width: min(100% - 4rem, var(--wrap)); } }
+
+.section { padding-block: var(--space-8); }
+@media (min-width: 900px) { .section { padding-block: var(--space-9); } }
+.section--fog { background: var(--c-fog); }
+.section--ink { background: var(--c-ink); color: #d5dee3; }
+.section--ink h2, .section--ink h3 { color: #fff; }
+.section--ink a:not(.btn) { color: #fff; }
+
+.lead { font-size: var(--step-1); line-height: 1.55; color: var(--c-muted); max-width: 40rem; }
+.section--ink .lead { color: #b9c6cd; }
+.muted { color: var(--c-muted); }
+
+.head { display: grid; gap: var(--space-4); margin-bottom: var(--space-7); }
+@media (min-width: 900px) { .head { grid-template-columns: 1.1fr 1fr; align-items: end; gap: var(--space-7); } }
+.head p { color: var(--c-muted); max-width: 32rem; }
+.section--ink .head p { color: #b9c6cd; }
+
+.label { font-size: var(--step--1); font-weight: 650; font-stretch: 87.5%; color: var(--c-muted); line-height: 1.4; }
+
+/* ---------- The flow line ----------
+   A vertical line on the inline-start edge that runs through consecutive .flow sections,
+   with a station dot on each .station heading. */
+.flow { position: relative; }
+.flow::before {
+  content: ''; position: absolute; inset-block: 0; inset-inline-start: var(--line-x); width: 4px;
+  background: var(--c-coral); pointer-events: none;
+}
+.flow > .wrap, .flow > .inner { padding-inline-start: var(--line-gap); }
+.flow .station { position: relative; }
+.flow .station::before {
+  content: ''; position: absolute; inset-inline-start: calc(-1 * var(--line-gap) - 8px); top: 0.3em;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--c-paper); border: 4px solid var(--c-coral);
+}
+.flow.section--fog .station::before { background: var(--c-fog); }
+.flow.section--ink .station::before { background: var(--c-ink); }
+.flow--end::before { inset-block-end: auto; height: 5.5rem; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  --btn-bg: var(--c-coral); --btn-fg: #fff; --btn-border: var(--c-coral);
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+  min-height: 48px; padding: 0.7rem 1.35rem;
+  font-family: var(--font); font-size: 1.02rem; font-weight: 700; line-height: 1.2;
+  color: var(--btn-fg); background: var(--btn-bg); border: 2px solid var(--btn-border);
+  border-radius: var(--radius); text-decoration: none; cursor: pointer;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+.btn:hover { --btn-bg: var(--c-coral-deep); --btn-border: var(--c-coral-deep); }
+.btn--lg { min-height: 56px; font-size: 1.15rem; padding-inline: 1.6rem; }
+.btn--wa { --btn-bg: var(--c-whatsapp); --btn-border: var(--c-whatsapp); }
+.btn--wa:hover { --btn-bg: #0f5f39; --btn-border: #0f5f39; }
+.btn--ink { --btn-bg: var(--c-ink); --btn-border: var(--c-ink); }
+.btn--ink:hover { --btn-bg: var(--c-ink-soft); --btn-border: var(--c-ink-soft); }
+.btn--ghost { --btn-bg: transparent; --btn-fg: var(--c-ink); --btn-border: currentColor; }
+.btn--ghost:hover { --btn-bg: var(--c-ink); --btn-fg: #fff; --btn-border: var(--c-ink); }
+.on-dark .btn--ghost, .section--ink .btn--ghost { --btn-fg: #fff; }
+.on-dark .btn--ghost:hover, .section--ink .btn--ghost:hover { --btn-bg: #fff; --btn-fg: var(--c-ink); --btn-border: #fff; }
+.btn--block { width: 100%; }
+.btn svg { flex: none; }
+.btn [dir="ltr"] { white-space: nowrap; }
+.btn { flex-wrap: wrap; }
+.btn.is-blocked { opacity: 0.55; cursor: not-allowed; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* ---------- Forms ---------- */
+.field { display: grid; gap: 0.35rem; }
+.field label, legend { font-weight: 650; font-size: 0.95rem; color: var(--c-text); }
+.field .hint { font-weight: 400; color: var(--c-muted); }
+input, select, textarea {
+  font: inherit; font-size: 1rem; color: var(--c-text);
+  width: 100%; min-height: 48px; padding: 0.6rem 0.85rem;
+  background: #fff; border: 1.5px solid var(--c-line); border-radius: var(--radius);
+}
+textarea { min-height: 6rem; resize: vertical; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; border-color: var(--c-coral); }
+[aria-invalid='true'] { border-color: var(--c-error); }
+.field-error { font-size: 0.875rem; color: var(--c-error); }
+.field-error:empty { display: none; }
+
+/* ---------- Tables ---------- */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: start; padding: 0.75rem 0; padding-inline-end: var(--space-4); border-bottom: 1px solid var(--c-line); font-weight: 400; vertical-align: top; }
+.table thead th { font-size: 0.85rem; font-weight: 650; color: var(--c-muted); }
+.table tbody th { font-weight: 650; }
+
+/* ---------- Prose ---------- */
+.prose { max-width: 44rem; }
+.prose > * + * { margin-top: 1.1em; }
+.prose h2 { font-size: var(--step-3); margin-top: 1.8em; }
+.prose ul, .prose ol { padding-inline-start: 1.3em; }
+.prose li + li { margin-top: 0.4em; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

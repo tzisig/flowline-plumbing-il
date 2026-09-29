@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import PriceTable from '../components/PriceTable.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { services, company, images } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+import { waLink } from '../lib/util';
+
+const crumbs = [home, { label: 'מחירון', href: '/prices/' }];
+const data = services.map((s) => ({ slug: s.slug, title: s.title, color: s.color, prices: s.prices }));
+---
+<BaseLayout
+  title="מחירון אינסטלציה 2026: פתיחת סתימה, נזילות, דודים וצנרת"
+  description="כמה עולה אינסטלטור בשפלה? טווחי מחירים לכל עבודה, כולל מע״מ ובלי תוספת לילה ושבת, ומחשבון שמראה מחיר וזמן עבודה משוערים."
+  schema={[breadcrumbSchema(crumbs)]}
+>
+  <PageHead crumbs={crumbs} title="מחירון" lead={`כל המחירים כוללים מע"מ, באותו מחיר בכל שעה. הטכנאי אומר מחיר מדויק אחרי בדיקה ולפני שמתחיל, ועל כל עבודה יש אחריות ${company.warrantyMonths} חודשים.`} image={images.tools} imageAlt={images.toolsAlt} />
+
+  <section class="section">
+    <div class="wrap est-grid">
+      <div>
+        <h2>כמה זה יעלה לי?</h2>
+        <p class="lead">בחרו את סוג העבודה, ותראו טווח מחיר וזמן עבודה משוער.</p>
+      </div>
+      <form class="estimator" data-estimator data-services={JSON.stringify(data)}>
+        <div class="field">
+          <label for="e-svc">סוג השירות</label>
+          <select id="e-svc" name="svc">{services.map((s) => <option value={s.slug}>{s.title}</option>)}</select>
+        </div>
+        <div class="field">
+          <label for="e-job">העבודה</label>
+          <select id="e-job" name="job"></select>
+        </div>
+        <output class="out" for="e-svc e-job" aria-live="polite" data-out>
+          <span class="range tnum" data-range></span>
+          <span class="time" data-time></span>
+        </output>
+        <a class="btn btn--wa" href={waLink()} target="_blank" rel="noopener" data-est-wa><Icon name="whatsapp" size={20} />לבקש הצעה בוואטסאפ</a>
+      </form>
+    </div>
+  </section>
+
+  <section class="section section--fog">
+    <div class="wrap">
+      <h2 class="h">המחירון המלא</h2>
+      <div class="tables">
+        {services.map((s) => (
+          <section class="block" style={`--line:${s.color}`}>
+            <h3><a href={`/services/${s.slug}/`}>{s.title}</a></h3>
+            <PriceTable rows={s.prices} caption={`מחירון ${s.title}`} />
+          </section>
+        ))}
+      </div>
+      <p class="note">המחירים הם טווחים לעבודה רגילה. חלקים מיוחדים, גישה קשה או עבודה בגובה יכולים לשנות את המחיר, ותמיד תדעו על זה לפני שמתחילים.</p>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .est-grid { display: grid; gap: var(--space-6); align-items: start; }
+  @media (min-width: 900px) { .est-grid { grid-template-columns: 1fr 1.2fr; gap: var(--space-8); } }
+  .est-grid h2 { font-size: var(--step-3); margin-bottom: var(--space-4); }
+  .estimator { display: grid; gap: var(--space-4); background: var(--c-panel); border-radius: var(--radius); padding: var(--space-6); border-top: 6px solid var(--est-line, var(--c-coral)); }
+  .out { display: grid; gap: 0.2rem; padding: var(--space-4) var(--space-5); background: var(--c-fog); border-radius: var(--radius); }
+  .range { font-size: var(--step-3); font-weight: 800; font-stretch: 75%; color: var(--c-ink); }
+  .time { color: var(--c-muted); }
+  .estimator .btn { justify-self: start; }
+  .h { font-size: var(--step-3); margin-bottom: var(--space-6); }
+  .tables { display: grid; gap: var(--space-5); }
+  @media (min-width: 1000px) { .tables { grid-template-columns: 1fr 1fr; } }
+  .block { background: var(--c-panel); border-radius: var(--radius); padding: var(--space-5); border-top: 6px solid var(--line); }
+  .block h3 { margin-bottom: var(--space-3); }
+  .block h3 a { color: var(--c-ink); }
+  .note { margin-top: var(--space-6); color: var(--c-muted); max-width: 44rem; }
+</style>
+
+<script>
+  type Svc = { slug: string; title: string; color: string; prices: { job: string; from: number; to: number; time: string }[] };
+  const form = document.querySelector<HTMLFormElement>('[data-estimator]')!;
+  const list: Svc[] = JSON.parse(form.dataset.services!);
+  const svcSel = form.querySelector<HTMLSelectElement>('#e-svc')!;
+  const jobSel = form.querySelector<HTMLSelectElement>('#e-job')!;
+  const wa = form.querySelector<HTMLAnchorElement>('[data-est-wa]')!;
+  const base = wa.href.split('?')[0];
+  const nis = (n: number) => `${n.toLocaleString('he-IL')} ₪`;
+
+  const fillJobs = () => {
+    const s = list.find((x) => x.slug === svcSel.value)!;
+    jobSel.replaceChildren(...s.prices.map((p, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = p.job; return o; }));
+    form.style.setProperty('--est-line', s.color);
+  };
+  const show = () => {
+    const s = list.find((x) => x.slug === svcSel.value)!;
+    const p = s.prices[Number(jobSel.value)];
+    form.querySelector('[data-range]')!.textContent = p.from === p.to ? nis(p.from) : `${nis(p.from)} עד ${nis(p.to)}`;
+    form.querySelector('[data-time]')!.textContent = `זמן עבודה: ${p.time}`;
+    wa.href = `${base}?text=${encodeURIComponent(`שלום, אשמח להצעת מחיר: ${p.job} (${s.title})`)}`;
+  };
+  svcSel.addEventListener('change', () => { fillJobs(); show(); });
+  jobSel.addEventListener('change', show);
+  fillJobs(); show();
+</script>

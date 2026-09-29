@@ -1,0 +1,36 @@
+---
+import Icon from './Icon.astro';
+import DispatchStatus from './DispatchStatus.astro';
+import { contact } from '../config/site.config';
+import { waLink, telLink } from '../lib/util';
+interface Props { title?: string; text?: string; waText?: string; area?: string }
+const {
+  title = 'תקלה עכשיו? המוקד עונה.',
+  text = 'ספרו למוקדנית מה קרה. היא תשלח את הטכנאי הקרוב ותסביר מה לעשות עד שהוא מגיע.',
+  waText,
+  area,
+} = Astro.props;
+---
+<section class="cta section--ink on-dark">
+  <div class="wrap inner">
+    <div>
+      <h2>{title}</h2>
+      <p class="lead">{text}</p>
+    </div>
+    <div class="side">
+      <DispatchStatus variant="card" area={area} />
+      <div class="actions">
+        <a class="btn btn--lg" href={telLink}><Icon name="phone" size={20} /><span dir="ltr" class="tnum">{contact.phone}</span></a>
+        <a class="btn btn--lg btn--wa" href={waLink(waText)} target="_blank" rel="noopener"><Icon name="whatsapp" size={22} />וואטסאפ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta { padding-block: var(--space-8); }
+  .inner { display: grid; gap: var(--space-6); align-items: end; }
+  .inner h2 { margin-bottom: var(--space-4); }
+  .side { display: grid; gap: var(--space-5); color: #fff; }
+  @media (min-width: 900px) { .inner { grid-template-columns: 1.2fr 1fr; gap: var(--space-8); } }
+</style>

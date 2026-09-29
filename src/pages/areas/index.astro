@@ -1,0 +1,49 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import DispatchMap from '../../components/DispatchMap.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { areas, company, rush } from '../../config/site.config';
+import { breadcrumbSchema, home } from '../../lib/schema';
+
+const crumbs = [home, { label: 'אזורי שירות', href: '/areas/' }];
+---
+<BaseLayout
+  title="אזורי שירות וזמני הגעה בשפלה"
+  description="אינסטלטור בראשון לציון, חולון, בת ים, נס ציונה, רחובות ויבנה. מפת קווים עם זמני הגעה משוערים מהמוקד, לפי השעה."
+  schema={[breadcrumbSchema(crumbs)]}
+>
+  <PageHead crumbs={crumbs} title="לאן אנחנו מגיעים" lead={`שש ערים, שישה רכבים. זמן ההגעה הממוצע הוא ${company.avgArrival} דקות. בימים ראשון עד חמישי, בשעות ${rush.windows.map(([a, b]) => `${a}-${b}`).join(' ו-')}, מוסיפים כ-${rush.extra} דקות בגלל הפקקים.`} />
+
+  <section class="section">
+    <div class="wrap layout">
+      <div class="map-box on-dark"><DispatchMap animate={false} /></div>
+      <ul class="list">
+        {areas.map((a) => (
+          <li>
+            <a href={`/areas/${a.slug}/`}>
+              <Picture src={a.image} alt="" widths={[240, 480]} sizes="160px" formats={['avif', 'webp']} loading="lazy" />
+              <span class="t">אינסטלטור ב{a.name}</span>
+              <span class="d">{a.neighborhoods.slice(0, 3).join(', ')}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .layout { display: grid; gap: var(--space-7); align-items: start; }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 1fr 1fr; gap: var(--space-8); } }
+  .map-box { background: var(--c-ink); border-radius: var(--radius); padding: var(--space-6); }
+  .list { list-style: none; padding: 0; display: grid; }
+  .list a { display: grid; grid-template-columns: 96px 1fr; gap: 0.1rem var(--space-4); align-items: center; padding-block: var(--space-3); border-bottom: 1px solid var(--c-line); text-decoration: none; color: var(--c-text); }
+  .list :global(img) { grid-row: span 2; width: 96px; height: 72px; object-fit: cover; border-radius: var(--radius); }
+  .t { font-size: var(--step-1); font-weight: 800; font-stretch: 87.5%; color: var(--c-ink); }
+  .list a:hover .t { text-decoration: underline; text-decoration-color: var(--c-coral); text-decoration-thickness: 3px; }
+  .d { color: var(--c-muted); font-size: 0.95rem; }
+</style>

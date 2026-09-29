@@ -1,0 +1,40 @@
+---
+// A job from the recent-work log: what was wrong, what we did, how long, how much.
+import { Picture } from 'astro:assets';
+import { jobs } from '../config/site.config';
+import { areaBySlug, serviceBySlug, price } from '../lib/util';
+interface Props { job: (typeof jobs)[number]; headingLevel?: 'h2' | 'h3' }
+const { job: j, headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+const s = serviceBySlug(j.service);
+---
+<article class="job" style={`--line:${s.color}`}>
+  <Picture src={j.image} alt={j.imageAlt} widths={[400, 640]} sizes="(min-width: 900px) 22rem, 100vw" formats={['avif', 'webp']} loading="lazy" />
+  <div class="body">
+    <p class="meta"><a href={`/services/${s.slug}/`}>{s.title}</a>, <a href={`/areas/${j.area}/`}>{areaBySlug(j.area).name}</a></p>
+    <H>{j.title}</H>
+    <dl>
+      <div><dt>הבעיה</dt><dd>{j.problem}</dd></div>
+      <div><dt>מה עשינו</dt><dd>{j.solution}</dd></div>
+    </dl>
+    <ul class="facts">
+      <li>{j.minutes ? `הגעה תוך ${j.minutes} דק'` : 'עבודה מתוכננת'}</li>
+      <li>{j.duration}</li>
+      <li>{price(j.price)}</li>
+    </ul>
+    <p class="id">קריאה מספר {j.id}</p>
+  </div>
+</article>
+
+<style>
+  .job { display: grid; grid-template-rows: auto 1fr; background: var(--c-panel); border-radius: var(--radius); overflow: hidden; border-top: 5px solid var(--line); }
+  .job :global(img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .body { display: grid; gap: var(--space-3); padding: var(--space-5); align-content: start; }
+  .meta { font-size: 0.875rem; font-weight: 600; color: var(--c-muted); }
+  .meta a { color: inherit; }
+  dl { display: grid; gap: var(--space-2); font-size: 0.97rem; }
+  dt { font-weight: 700; font-size: 0.85rem; color: var(--c-muted); }
+  .facts { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .facts li { font-size: 0.85rem; font-weight: 650; padding: 0.2rem 0.6rem; background: var(--c-fog); border-radius: var(--pill); }
+  .id { font-size: 0.8rem; color: var(--c-muted); }
+</style>

@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { site, contact, legal } from '../config/site.config';
+import { breadcrumbSchema, home } from '../lib/schema';
+import { formatDate, telLink } from '../lib/util';
+
+const crumbs = [home, { label: 'הצהרת נגישות', href: '/accessibility/' }];
+---
+<BaseLayout title="הצהרת נגישות" description={`הצהרת הנגישות של אתר ${site.name}: רמת הנגישות, מה עשינו באתר ובשירות, ופרטי רכז הנגישות.`} schema={[breadcrumbSchema(crumbs)]}>
+  <PageHead crumbs={crumbs} title="הצהרת נגישות" lead={`עודכן לאחרונה: ${formatDate(site.updated)}`} />
+  <section class="section">
+    <div class="wrap prose">
+      <p>אנחנו רוצים שכל אחד יוכל לפנות אלינו ולקבל שירות, כולל אנשים עם מוגבלות. האתר נבנה כך שיהיה נגיש, בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013.</p>
+
+      <h2>רמת הנגישות</h2>
+      <p>האתר נבנה בהתאם לתקן הישראלי ת"י 5568, המבוסס על הנחיות WCAG 2.0 ברמה AA.</p>
+
+      <h2>מה עשינו באתר</h2>
+      <ul>
+        <li>ניווט מלא במקלדת, כולל התפריט, מפת זמני ההגעה, בדיקת מד המים, מחשבון המחירים, שאלות נפוצות וטפסים, עם סימון ברור של הרכיב הפעיל.</li>
+        <li>קישור "דלגו לתוכן הראשי" בתחילת כל עמוד.</li>
+        <li>ניגודיות צבעים לפי דרישות רמה AA.</li>
+        <li>מבנה כותרות היררכי, תיאור טקסטואלי לתמונות משמעותיות ותוויות לכל שדות הטופס.</li>
+        <li>כל עיר במפת הקווים היא קישור עם שם העיר, ואותם זמני הגעה מופיעים גם בטבלה טקסטואלית.</li>
+        <li>הצבעים של השירותים באים תמיד יחד עם שם השירות, ולא משמשים לבד להעברת מידע.</li>
+        <li>התאמה לכל גדלי המסך ואפשרות הגדלת טקסט עד 200% בלי אובדן תוכן.</li>
+        <li>כיבוד הגדרת "הפחתת תנועה" של מערכת ההפעלה.</li>
+        <li>הנגישות מובנית בקוד האתר ואינה נשענת על תוסף נגישות חיצוני.</li>
+      </ul>
+
+      <h2>נגישות השירות</h2>
+      <p>השירות ניתן בבית הלקוח. אפשר לפנות למוקד בטלפון, בוואטסאפ (בהודעה כתובה, קולית או בתמונה), במייל או בטופס באתר, בכל שעה.</p>
+
+      <h2>נתקלתם בבעיה?</h2>
+      <p>אם מצאתם רכיב שאינו נגיש, נשמח לדעת ולתקן. פרטי רכז הנגישות:</p>
+      <ul>
+        <li>שם: {legal.accessibilityCoordinator}</li>
+        <li>טלפון: <a href={telLink} dir="ltr">{contact.phone}</a></li>
+        <li>מייל: <a href={`mailto:${legal.accessibilityEmail}`}>{legal.accessibilityEmail}</a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
